@@ -148,7 +148,7 @@
             const materialIndex = rawMaterials.findIndex(mat => mat.codigo === codigo);
 
             if (materialIndex !== -1) {
-                rawMaterials[materialIndex] = { codigo, nombre, unidadMedida };
+                rawMaterials[materialIndex] = { codigo, nombre, cantidad, unidadMedida };
                 localStorage.setItem('rawMaterials', JSON.stringify(rawMaterials));
                 alert("Materia prima actualizada exitosamente.");
                 loadRawMaterials();
