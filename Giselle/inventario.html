@@ -6,34 +6,39 @@
     <title>Inventario de Materias Primas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .popover {
-            display: none; /* Inicialmente oculto */
-            position: absolute; /* Para posicionarlo correctamente */
-            z-index: 1000; /* Asegúrate de que esté en la parte superior */
+        .custom-popover {
+            display: none;
+            position: absolute;
+            z-index: 1000;
+            width: 300px;
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="index.html">WMS</a>
+            <a class="navbar-brand" href="index.html">QUILTRO</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="materias-primas.html">Materias Primas</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Agregar nuevo</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="materias-primas.html">Materias Primas</a></li>
+                            <li><a class="dropdown-item" href="agregar-producto.html">Producto</a></li>
+                        </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="agregar-producto.html">Agregar Producto</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Inventario</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="inventario.html">Materias primas</a></li>
+                            <li><a class="dropdown-item" href="#">Productos terminados</a></li>
+                        </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="inventario.html">Inventario</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="productos.html">Productos</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="productos.html">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Producción</a></li>
                 </ul>
             </div>
         </div>
@@ -50,51 +55,44 @@
                     <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody id="inventoryTableBody">
-                <!-- Aquí se cargarán las materias primas -->
-            </tbody>
+            <tbody id="inventoryTableBody"></tbody>
         </table>
     </div>
 
     <!-- Popover para editar materia prima -->
-    <div class="popover fade" id="editPopover" role="tooltip">
-        <div class="popover-arrow"></div>
-        <h3 class="popover-header">Editar Materia Prima</h3>
-        <div class="popover-body">
-            <form id="editMaterialForm">
-                <div class="mb-3">
-                    <label for="materialCode" class="form-label">Código (ID)</label>
-                    <input type="text" class="form-control" id="materialCode" disabled>
-                </div>
-                <div class="mb-3">
-                    <label for="materialName" class="form-label">Nombre</label>
-                    <input type="text" class="form-control" id="materialName" required>
-                </div>
-                <div class="mb-3">
-                    <label for="unitSelect" class="form-label">Unidad de Medida</label>
-                    <select class="form-select" id="unitSelect" required>
-                        <option value="" disabled selected>Selecciona una unidad</option>
-                        <option value="kilos">Kilos</option>
-                        <option value="gramos">Gramos</option>
-                        <option value="metros">Metros</option>
-                        <option value="centimetros">Centímetros</option>
-                        <option value="unidad">Unidad</option>
-                        <option value="litro">Litro</option>
-                        <option value="ml">Mililitros</option>
-                        <option value="mm">Milímetros</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-success">Guardar Cambios</button>
-                <button type="button" class="btn btn-secondary" id="closePopover">Cerrar</button>
-            </form>
-        </div>
+    <div class="custom-popover bg-light p-3 border rounded" id="editPopover">
+        <h3>Editar Materia Prima</h3>
+        <form id="editMaterialForm">
+            <div class="mb-3">
+                <label for="materialCode" class="form-label">Código (ID)</label>
+                <input type="text" class="form-control" id="materialCode" disabled>
+            </div>
+            <div class="mb-3">
+                <label for="materialName" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="materialName" required>
+            </div>
+            <div class="mb-3">
+                <label for="unitSelect" class="form-label">Unidad de Medida</label>
+                <select class="form-select" id="unitSelect" required>
+                    <option value="" disabled selected>Selecciona una unidad</option>
+                    <option value="kilos">Kilos</option>
+                    <option value="gramos">Gramos</option>
+                    <option value="metros">Metros</option>
+                    <option value="unidad">Unidad</option>
+                    <option value="litro">Litro</option>
+                    <option value="ml">Mililitros</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-success">Guardar Cambios</button>
+            <button type="button" class="btn btn-secondary" id="closePopover">Cerrar</button>
+        </form>
     </div>
 
     <script>
-        // Cargar materias primas en la tabla
         function loadRawMaterials() {
             const rawMaterials = JSON.parse(localStorage.getItem('rawMaterials')) || [];
             const inventoryTableBody = document.getElementById('inventoryTableBody');
+            inventoryTableBody.innerHTML = '';
 
             if (rawMaterials.length === 0) {
                 inventoryTableBody.innerHTML = '<tr><td colspan="4" class="text-center">No hay materias primas registradas.</td></tr>';
@@ -115,7 +113,6 @@
             });
         }
 
-        // Abrir el popover para editar
         function openEditPopover(button, codigo) {
             const rawMaterials = JSON.parse(localStorage.getItem('rawMaterials')) || [];
             const material = rawMaterials.find(mat => mat.codigo === codigo);
@@ -127,18 +124,14 @@
 
                 const popover = document.getElementById('editPopover');
                 const rect = button.getBoundingClientRect();
-
-                // Mostrar el popover justo debajo del botón
                 popover.style.top = `${rect.bottom + window.scrollY}px`;
                 popover.style.left = `${rect.left}px`;
-                popover.style.display = 'block'; // Mostrar popover
+                popover.style.display = 'block';
             }
         }
 
-        // Guardar cambios al editar materia prima
         document.getElementById('editMaterialForm').addEventListener('submit', (event) => {
             event.preventDefault();
-
             const codigo = document.getElementById('materialCode').value;
             const nombre = document.getElementById('materialName').value;
             const unidadMedida = document.getElementById('unitSelect').value;
@@ -150,22 +143,18 @@
                 rawMaterials[materialIndex] = { codigo, nombre, unidadMedida };
                 localStorage.setItem('rawMaterials', JSON.stringify(rawMaterials));
                 alert("Materia prima actualizada exitosamente.");
-                loadRawMaterials(); // Recargar la tabla
-                closePopover(); // Cerrar el popover
+                loadRawMaterials();
+                closePopover();
             }
         });
 
-        // Cerrar el popover
-        document.getElementById('closePopover').addEventListener('click', () => {
-            closePopover();
-        });
+        document.getElementById('closePopover').addEventListener('click', closePopover);
 
         function closePopover() {
             const popover = document.getElementById('editPopover');
-            popover.style.display = 'none'; // Ocultar popover
+            popover.style.display = 'none';
         }
 
-        // Cargar materias primas al cargar la página
         window.addEventListener('load', loadRawMaterials);
     </script>
 
