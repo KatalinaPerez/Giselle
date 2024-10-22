@@ -51,6 +51,7 @@
                 <tr>
                     <th>Código</th>
                     <th>Nombre</th>
+                    <th>Cantidad</th>
                     <th>Unidad de Medida</th>
                     <th>Acciones</th>
                 </tr>
@@ -70,6 +71,10 @@
             <div class="mb-3">
                 <label for="materialName" class="form-label">Nombre</label>
                 <input type="text" class="form-control" id="materialName" required>
+            </div>
+            <div class="mb-3">
+                <label for="materialName" class="form-label">Cantidad</label>
+                <input type="number" class="form-control" id="materialCantidad" required>
             </div>
             <div class="mb-3">
                 <label for="unitSelect" class="form-label">Unidad de Medida</label>
@@ -104,6 +109,7 @@
                 row.innerHTML = `
                     <td>${material.codigo}</td>
                     <td>${material.nombre}</td>
+                    <td>${material.cantidad}</td>
                     <td>${material.unidadMedida}</td>
                     <td>
                         <button class="btn btn-warning" onclick="openEditPopover(this, '${material.codigo}')">Editar</button>
@@ -120,6 +126,7 @@
             if (material) {
                 document.getElementById('materialCode').value = material.codigo;
                 document.getElementById('materialName').value = material.nombre;
+                document.getElementById('materialCantidad').value = material.cantidad;
                 document.getElementById('unitSelect').value = material.unidadMedida;
 
                 const popover = document.getElementById('editPopover');
@@ -134,6 +141,7 @@
             event.preventDefault();
             const codigo = document.getElementById('materialCode').value;
             const nombre = document.getElementById('materialName').value;
+            const cantidad = document.getElementById('materialCantidad').value;
             const unidadMedida = document.getElementById('unitSelect').value;
 
             const rawMaterials = JSON.parse(localStorage.getItem('rawMaterials')) || [];
