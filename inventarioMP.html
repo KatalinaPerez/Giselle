@@ -12,21 +12,16 @@
     <script src="js/nav.js"></script>
     <link rel="stylesheet" href="css/style.css">
     <script>
-        // Llama a la función para cargar la navbar una vez que el DOM esté completamente cargado
-        document.addEventListener('DOMContentLoaded', loadNavbar);
-    </script>
-    <style>
-        .custom-popover {
-            display: none;
-            position: absolute;
-            z-index: 1000;
-            width: 300px;
-        }
-    </style>
-</head>
-
-<body>
-    <div id="navbar"></div>
+// Llama a la función para cargar la navbar 
+document.addEventListener('DOMContentLoaded', loadNavbar);
+      </script>
+    </head>
+    
+    <body>
+      <!------BARRA MENU----------->
+      <div id="navbar"></div>
+    
+      <!----------------->
 
     <div class="container mt-5">
         <h2>Inventario de Materias Primas</h2>
@@ -45,22 +40,22 @@
     </div>
 
     <!-- Popover para editar materia prima -->
-    <div class="custom-popover bg-light p-3 border rounded" id="editPopover">
+    <div class="custom-popover" id="editPopover">
         <h3>Editar Materia Prima</h3>
         <form id="editMaterialForm">
-            <div class="mb-3">
+            <div >
                 <label for="materialCode" class="form-label">Código (ID)</label>
                 <input type="text" class="form-control" id="materialCode" disabled>
             </div>
-            <div class="mb-3">
+            <div >
                 <label for="materialName" class="form-label">Nombre</label>
                 <input type="text" class="form-control" id="materialName" required>
             </div>
-            <div class="mb-3">
+            <div >
                 <label for="materialName" class="form-label">Cantidad</label>
                 <input type="number" class="form-control" id="materialCantidad" required>
             </div>
-            <div class="mb-3">
+            <div >
                 <label for="unitSelect" class="form-label">Unidad de Medida</label>
                 <select class="form-select" id="unitSelect" required>
                     <option value="" disabled selected>Selecciona una unidad</option>
@@ -72,8 +67,8 @@
                     <option value="ml">Mililitros</option>
                 </select>
             </div>
-            <button type="submit" class="btn btn-success">Guardar Cambios</button>
-            <button type="button" class="btn btn-secondary" id="closePopover">Cerrar</button>
+            <button type="submit" class="button" style="margin:20px">Guardar Cambios</button>
+            <button type="button" class="button3" id="closePopover">Salir</button>
         </form>
     </div>
 
@@ -96,7 +91,7 @@
                     <td>${material.cantidad}</td>
                     <td>${material.unidadMedida}</td>
                     <td>
-                        <button class="btn btn-warning" onclick="openEditPopover(this, '${material.codigo}')">Editar</button>
+                        <button class="button2" onclick="openEditPopover(this, '${material.codigo}')">Editar</button>
                     </td>
                 `;
                 inventoryTableBody.appendChild(row);
@@ -104,6 +99,18 @@
         }
 
         function openEditPopover(button, codigo) {
+            const popover = document.getElementById('editPopover');
+    // Ajustar tamaño del popover
+    popover.style.width = '600px';
+    popover.style.maxHeight = '80vh';
+    popover.style.display = 'block';
+
+    // Centrar el popover en pantalla
+    popover.style.position = 'fixed';
+    popover.style.top = '50%';
+    popover.style.left = '50%';
+    popover.style.transform = 'translate(-50%, -50%)';
+
             const rawMaterials = JSON.parse(localStorage.getItem('rawMaterials')) || [];
             const material = rawMaterials.find(mat => mat.codigo === codigo);
 
@@ -112,12 +119,6 @@
                 document.getElementById('materialName').value = material.nombre;
                 document.getElementById('materialCantidad').value = material.cantidad;
                 document.getElementById('unitSelect').value = material.unidadMedida;
-
-                const popover = document.getElementById('editPopover');
-                const rect = button.getBoundingClientRect();
-                popover.style.top = `${rect.bottom + window.scrollY}px`;
-                popover.style.left = `${rect.left}px`;
-                popover.style.display = 'block';
             }
         }
 

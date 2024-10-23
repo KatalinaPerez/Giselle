@@ -21,27 +21,32 @@
   <!----------------->
   <div id="navbar"></div>
   <!----------------->
-  <div class="container mt-5">
+  <div class="container mt-5" style="padding-left: 20%;padding-right: 20%;">
     <h2>Agregar Producto</h2>
     <form id="productRecipeForm">
-      <div class="mb-3">
+      <div >
         <label for="productName" class="form-label">Nombre del Producto</label>
         <input type="text" class="form-control" id="productName" required>
       </div>
-      <div class="mb-3">
+      <div >
         <label for="ingredientSelect" class="form-label">Materia Prima</label>
         <select class="form-select" id="ingredientSelect" required>
           <option value="">Selecciona una materia prima</option>
         </select>
       </div>
-      <div class="mb-3">
+      <div >
         <label for="ingredientQuantity" class="form-label">Cantidad necesaria</label>
         <input type="number" class="form-control" id="ingredientQuantity" min="1" placeholder="Ingresa la cantidad">
       </div>
+      <div style="padding-top: 10px;padding-bottom: 30px;">
       <button type="button" class="button2" id="addIngredient">Agregar materia prima</button>
-      <ul class="list-group mt-3" id="ingredientList"></ul>
-      <button type="submit" class="button">Guardar Producto</button>
-    </form>
+      <ul class="list-group" id="ingredientList"></ul>
+    </div>
+      <div style="text-align: center; align-items: center;">
+        <button type="submit" class="button">Guardar Producto</button>
+   
+      </div>
+ </form>
   </div>
 
   <script>

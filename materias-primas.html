@@ -23,22 +23,22 @@
 
     <!----------------->
 
-    <div class="container mt-5">
+    <div class="container mt-5" style="padding-left: 20%;padding-right: 20%;">
         <h2>Agregar Materia Prima</h2>
         <form id="rawMaterialForm">
-            <div class="mb-3">
+            <div>
                 <label for="codigo" class="form-label">Código (ID)</label>
                 <input type="text" class="form-control" id="codigo" required>
             </div>
-            <div class="mb-3">
+            <div >
                 <label for="nombre" class="form-label">Nombre materia prima</label>
                 <input type="text" class="form-control" id="nombre" required>
             </div>
-            <div class="mb-3">
+            <div>
                 <label for="cantidad" class="form-label">Cantidad</label>
                 <input type="number" class="form-control" id="cantidad" name="cantidad" min="1" required>
             </div>
-            <div class="mb-3">
+            <div>
                 <label for="unidadMedida" class="form-label">Unidad de Medida</label>
                 <select class="form-select" id="unidadMedida" required>
                     <option value="" disabled selected>Seleccione una unidad</option>
@@ -52,7 +52,11 @@
                     <option value="mm">Milímetros</option>
                 </select>
             </div>
-            <button type="submit" class="button">Guardar Materia Prima</button>
+            <div style="text-align: center; align-items: center; padding-top: 20px;">
+    
+                <button type="submit" class="button">Guardar Materia Prima</button>
+            </div>
+          
         </form>
     </div>
 
