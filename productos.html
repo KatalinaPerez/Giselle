@@ -11,17 +11,14 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
   <script src="js/nav.js"></script>
   <link rel="stylesheet" href="css/style.css">
-  <script>
-// Llama a la función para cargar la navbar 
-document.addEventListener('DOMContentLoaded', loadNavbar);
-    </script>
-  </head>
-  
-  <body>
-    <!------BARRA MENU----------->
-    <div id="navbar"></div>
-  
-    <!----------------->
+  <script>document.addEventListener('DOMContentLoaded', loadNavbar);</script>
+</head>
+
+<body>
+  <!------BARRA MENU----------->
+  <div id="navbar"></div>
+
+  <!----------------->
   <div class="container mt-5">
     <h2>Productos Guardados</h2>
     <input type="text" id="searchInput" class="form-control mb-3" placeholder="Buscar productos..."
@@ -53,9 +50,15 @@ document.addEventListener('DOMContentLoaded', loadNavbar);
     //Función que lleva creacionProducto
     function goToCreatePage(index) {
       const products = JSON.parse(localStorage.getItem('products')) || [];
-      localStorage.setItem('selectedProduct', JSON.stringify(products[index]));
-      window.location.href = 'creacionProducto.html';
+      let selectedProducts = JSON.parse(localStorage.getItem('selectedProducts')) || [];
+
+      // Agregar el producto seleccionado al array de productos seleccionados
+      selectedProducts.push(products[index]);
+
+      // Guardar el array actualizado en el localStorage
+      localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
     }
+
 
     // Función para eliminar un producto
     function deleteProduct(index) {
