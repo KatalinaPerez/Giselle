@@ -11,17 +11,14 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="js/nav.js"></script>
     <link rel="stylesheet" href="css/style.css">
-    <script>
-// Llama a la función para cargar la navbar 
-document.addEventListener('DOMContentLoaded', loadNavbar);
-      </script>
-    </head>
-    
-    <body>
-      <!------BARRA MENU----------->
-      <div id="navbar"></div>
-    
-      <!----------------->
+    <script>document.addEventListener('DOMContentLoaded', loadNavbar);</script>
+</head>
+
+<body>
+    <!------BARRA MENU----------->
+    <div id="navbar"></div>
+
+    <!----------------->
 
     <div class="container mt-5">
         <h2>Inventario de Productos</h2>
@@ -30,6 +27,7 @@ document.addEventListener('DOMContentLoaded', loadNavbar);
                 <tr class="tr">
                     <th>Nombre</th>
                     <th>Cantidad</th>
+                    <th>Acciones</th> <!-- Nueva columna para el botón Eliminar -->
                 </tr>
             </thead>
             <tbody id="inventoryTableBody"></tbody>
@@ -37,24 +35,55 @@ document.addEventListener('DOMContentLoaded', loadNavbar);
     </div>
 
     <script>
-        const inventoryProducts = JSON.parse(localStorage.getItem('inventoryProducts')) || [];
+        // Cargar los productos del inventario desde localStorage
+        let inventoryProducts = JSON.parse(localStorage.getItem('inventoryProducts')) || [];
         const inventoryTableBody = document.getElementById('inventoryTableBody');
 
-        if (inventoryProducts.length === 0) {
-            inventoryTableBody.innerHTML = '<tr><td colspan="2" class="text-center">No hay productos registrados.</td></tr>';
-        } else {
-            inventoryProducts.forEach(product => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-          <td>${product.name}</td>
-          <td>${product.quantity}</td>
-        `;
-                inventoryTableBody.appendChild(row);
-            });
+        // Mostrar los productos en la tabla
+        function displayInventory() {
+            inventoryTableBody.innerHTML = ''; // Limpiar tabla antes de actualizar
+
+            if (inventoryProducts.length === 0) {
+                inventoryTableBody.innerHTML = '<tr><td colspan="3" class="text-center">No hay productos registrados.</td></tr>';
+            } else {
+                inventoryProducts.forEach((product, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${product.name}</td>
+                        <td>${product.quantity}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="removeProductUnit(${index})">Eliminar</button>
+                        </td>
+                    `;
+                    inventoryTableBody.appendChild(row);
+                });
+            }
         }
+
+        // Función para eliminar una unidad de un producto
+        function removeProductUnit(index) {
+            const product = inventoryProducts[index];
+
+            // Restar una unidad
+            product.quantity--;
+
+            // Si la cantidad llega a 0, eliminar el producto del inventario
+            if (product.quantity <= 0) {
+                inventoryProducts.splice(index, 1); // Eliminar el producto
+            }
+
+            // Actualizar el inventario en localStorage
+            localStorage.setItem('inventoryProducts', JSON.stringify(inventoryProducts));
+
+            // Volver a mostrar la tabla actualizada
+            displayInventory();
+        }
+
+        // Inicializar la tabla de inventario cuando la página carga
+        displayInventory();
     </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
