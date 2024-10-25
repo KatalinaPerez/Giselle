@@ -83,11 +83,11 @@
                 codigo: codigo,
                 nombre: nombre,
                 cantidad: cantidad,
-                unidadMedida: unidadMedida, // Añadir unidad de medida al objeto
+                unidadMedida: unidadMedida,
             };
 
             // Guarda en localStorage
-            rawMaterials.push(rawMaterial);
+            rawMaterials.push(rawMaterial);//Agrega Materia Prima al array
             localStorage.setItem('rawMaterials', JSON.stringify(rawMaterials));
 
             // Limpia el formulario
