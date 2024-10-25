@@ -24,7 +24,7 @@ function loadNavbar() {
                         </ul>
                     </li>
                     <li class="nav-item"><a class="nav-link" href="productos.html">Productos</a></li>
-                    <li class="nav-item"><a class="nav-link" href="creacionProducto.html">Producción</a></li>
+                    <li class="nav-item"><a class="nav-link" href="produccion.html">Producción</a></li>
                 </ul>
             </div>
         </div>

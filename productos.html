@@ -21,51 +21,78 @@
   <!----------------->
   <div class="container mt-5">
     <h2>Productos Guardados</h2>
-    <input type="text" id="searchInput" class="form-control mb-3" placeholder="Buscar productos..."
-      oninput="searchProducts()">
+    <input type="text" id="searchInput" class="form-control mb-3" placeholder="Buscar productos..." oninput="searchProducts()">
     <div id="productList" class="list-group"></div>
   </div>
 
+  <!--::::::::::::::::: F U N C I O N E S ::::::::::::::::-->
   <script>
     const productList = document.getElementById('productList');
 
     // Cargar productos del localStorage
     function loadProducts() {
-      const products = JSON.parse(localStorage.getItem('products')) || [];
-      if (products.length === 0) {
+    const products = JSON.parse(localStorage.getItem('products')) || [];
+    const rawMaterials = JSON.parse(localStorage.getItem('rawMaterials')) || [];
+
+    if (products.length === 0) {
         productList.innerHTML = '<div class="alert alert-info">No hay productos guardados.</div>';
-      } else {
-        productList.innerHTML = products.map((product, index) => `
-          <div class="list-group-item">
-            <h5>${product.name}</h5>
-            <ul>
-              ${product.ingredients.map(ingredient => `<li>${ingredient.name} - Cantidad: ${ingredient.quantity}</li>`).join('')}
-            </ul>
-            <button class="btn btn-danger btn-sm" onclick="deleteProduct(${index})">Eliminar</button>
-            <button class="btn btn-primary btn-sm" onclick="goToCreatePage(${index})">Crear</button>
-          </div>
-        `).join('');
-      }
+    } else {
+        productList.innerHTML = products.map((product, index) => {
+            let isStockAvailable = true;
+            let stockIssues = [];
+
+            // Verificar disponibilidad de stock para cada ingrediente
+            product.ingredients.forEach(ingredient => {
+                const rawMaterial = rawMaterials.find(material => material.nombre === ingredient.name);
+
+                if (rawMaterial) {
+                    const requiredQuantity = Number(ingredient.quantity); // Convertimos a número
+                    const availableQuantity = Number(rawMaterial.cantidad); // Convertimos a número
+
+                    if (availableQuantity < requiredQuantity) {
+                        stockIssues.push(
+                            `${ingredient.name}: falta ${requiredQuantity - availableQuantity} ${rawMaterial.unidadMedida}`
+                        );
+                        isStockAvailable = false;
+                    }
+                } else {
+                    stockIssues.push(`${ingredient.name}: no disponible`);
+                    isStockAvailable = false;
+                }
+            });
+
+            return `
+                <div class="list-group-item">
+                    <h5>${product.name}</h5>
+                    <ul>
+                        ${product.ingredients.map(ingredient => `
+                            <li>${ingredient.name} - Cantidad: ${ingredient.quantity}</li>
+                        `).join('')}
+                    </ul>
+                    ${!isStockAvailable ? `<div class="text-danger">Faltante de stock: ${stockIssues.join(', ')}</div>` : ''}
+                    <button class="btn btn-primary btn-sm" onclick="goToCreatePage(${index})" ${!isStockAvailable ? 'disabled' : ''}>Crear</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteProduct(${index})">Eliminar</button>
+                </div>
+            `;
+        }).join('');
     }
-    //Función que lleva creacionProducto
+}
+
     function goToCreatePage(index) {
       const products = JSON.parse(localStorage.getItem('products')) || [];
       let selectedProducts = JSON.parse(localStorage.getItem('selectedProducts')) || [];
 
       // Agregar el producto seleccionado al array de productos seleccionados
       selectedProducts.push(products[index]);
-
-      // Guardar el array actualizado en el localStorage
       localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
     }
-
 
     // Función para eliminar un producto
     function deleteProduct(index) {
       const products = JSON.parse(localStorage.getItem('products')) || [];
-      products.splice(index, 1); // Elimina el producto del array
-      localStorage.setItem('products', JSON.stringify(products)); // Actualiza el localStorage
-      loadProducts(); // Vuelve a cargar la lista de productos
+      products.splice(index, 1);
+      localStorage.setItem('products', JSON.stringify(products));
+      loadProducts();
     }
 
     // Función para buscar productos
@@ -74,18 +101,10 @@
       const products = JSON.parse(localStorage.getItem('products')) || [];
       productList.innerHTML = products
         .filter(product => product.name.toLowerCase().includes(query))
-        .map((product, index) => `
-          <div class="list-group-item">
-            <h5>${product.name}</h5>
-            <ul>
-              ${product.ingredients.map(ingredient => `<li>${ingredient.name} - Cantidad: ${ingredient.quantity}</li>`).join('')}
-            </ul>
-            <button class="btn btn-danger btn-sm" onclick="deleteProduct(${index})">Eliminar</button>
-          </div>
-        `).join('');
+        .map((product, index) => `...`)
+        .join('');
     }
 
-    // Cargar productos al cargar la página
     window.addEventListener('load', loadProducts);
   </script>
 
