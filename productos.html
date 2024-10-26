@@ -22,10 +22,11 @@
   <!----------------->
   <div class="container mt-5">
     <h2>Productos Guardados</h2>
-    
-    <input type="text" id="searchInput" class="form-control mb-3" placeholder="Buscar productos..." oninput="searchProducts()">
+
+    <input type="text" id="searchInput" class="form-control mb-3" placeholder="Buscar productos..."
+      oninput="searchProducts()">
     <!-- Campo de entrada para buscar productos, que llama a la función 'searchProducts' cada vez que el contenido cambia. -->
-    
+
     <div id="productList" class="list-group"></div>
     <!-- Este div contendrá la lista de productos que se mostrarán dinámicamente. -->
   </div>
@@ -43,39 +44,39 @@
 
       // Verificar si no hay productos guardados
       if (products.length === 0) {
-          productList.innerHTML = '<div class="alert alert-info">No hay productos guardados.</div>';
+        productList.innerHTML = '<div class="alert alert-info">No hay productos guardados.</div>';
       } else {
-          // Si hay productos, se generan dinámicamente los elementos de la lista
-          productList.innerHTML = products.map((product, index) => {
-            /*Creamos un array en donde se toma como parámetro el producto que se procesa en
-            la iteración y el indice del producto en el array*/
-              let isStockAvailable = true;
-              let stockIssues = [];
+        // Si hay productos, se generan dinámicamente los elementos de la lista
+        productList.innerHTML = products.map((product, index) => {
+          /*Creamos un array en donde se toma como parámetro el producto que se procesa en
+          la iteración y el indice del producto en el array*/
+          let isStockAvailable = true;
+          let stockIssues = [];
 
-              // Verificar disponibilidad de stock para cada ingrediente
-              product.ingredients.forEach(ingredient => {
-                  const rawMaterial = rawMaterials.find(material => material.codigo === ingredient.name);
+          // Verificar disponibilidad de stock para cada ingrediente
+          product.ingredients.forEach(ingredient => {
+            const rawMaterial = rawMaterials.find(material => material.codigo === ingredient.name);
 
-                  // Verificar si el material existe
-                  if (rawMaterial) {
-                      const requiredQuantity = Number(ingredient.quantity); // Cantidad que requiere el producto
-                      const availableQuantity = Number(rawMaterial.cantidad); // Cantidad que hay en el inventario (stock)
+            // Verificar si el material existe
+            if (rawMaterial) {
+              const requiredQuantity = Number(ingredient.quantity); // Cantidad que requiere el producto
+              const availableQuantity = Number(rawMaterial.cantidad); // Cantidad que hay en el inventario (stock)
 
-                      // Verificar si hay suficiente stock
-                      if (availableQuantity < requiredQuantity) {
-                          stockIssues.push(
-                              `${ingredient.name}: falta ${requiredQuantity - availableQuantity} ${rawMaterial.unidadMedida}`
-                          );
-                          isStockAvailable = false; // Marcar que hay problemas de stock
-                      }
-                  } else {
-                      stockIssues.push(`${ingredient.name}: no disponible`);
-                      isStockAvailable = false; // Marcar que el ingrediente no está disponible
-                  }
-              });
+              // Verificar si hay suficiente stock
+              if (availableQuantity < requiredQuantity) {
+                stockIssues.push(
+                  `${ingredient.name}: falta ${requiredQuantity - availableQuantity} ${rawMaterial.unidadMedida}`
+                );
+                isStockAvailable = false; // Marcar que hay problemas de stock
+              }
+            } else {
+              stockIssues.push(`${ingredient.name}: no disponible`);
+              isStockAvailable = false; // Marcar que el ingrediente no está disponible
+            }
+          });
 
-              // Retornar el HTML para cada producto
-              return `
+          // Retornar el HTML para cada producto
+          return `
                   <div class="list-group-item">
                       <h5>${product.name}</h5>
                       <ul>
@@ -88,18 +89,44 @@
                       <button class="btn btn-danger btn-sm" onclick="deleteProduct(${index})">Eliminar</button>
                   </div>
               `;
-          }).join('');
+        }).join('');
       }
     }
 
     function goToCreatePage(index) {
       const products = JSON.parse(localStorage.getItem('products')) || [];
-      let selectedProducts = JSON.parse(localStorage.getItem('selectedProducts')) || [];
+      const rawMaterials = JSON.parse(localStorage.getItem('rawMaterials')) || [];
+
+      // Obtener el producto seleccionado
+      const selectedProduct = products[index];
+
+      // Actualizar el stock de materias primas
+      selectedProduct.ingredients.forEach(ingredient => {
+        const rawMaterial = rawMaterials.find(material => material.codigo === ingredient.name);
+
+        // Si se encuentra el material, descontar la cantidad
+        if (rawMaterial) {
+          const requiredQuantity = Number(ingredient.quantity);
+          const availableQuantity = Number(rawMaterial.cantidad);
+
+          // Verificar que hay suficiente stock antes de descontar
+          if (availableQuantity >= requiredQuantity) {
+            rawMaterial.cantidad = availableQuantity - requiredQuantity; // Descontar la cantidad
+          } else {
+            alert(`No hay suficiente stock para ${ingredient.name}.`);
+          }
+        }
+      });
+
+      // Guardar los cambios en el localStorage
+      localStorage.setItem('rawMaterials', JSON.stringify(rawMaterials));
 
       // Agregar el producto seleccionado al array de productos seleccionados
-      selectedProducts.push(products[index]);
+      let selectedProducts = JSON.parse(localStorage.getItem('selectedProducts')) || [];
+      selectedProducts.push(selectedProduct);
       localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
-      // Se actualiza el localStorage con el nuevo array de productos seleccionados.
+
+      location.reload();
     }
 
     // Función para eliminar un producto
