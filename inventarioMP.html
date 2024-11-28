@@ -6,9 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario de Materias Primas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="js/nav.js"></script>
     <link rel="stylesheet" href="css/style.css">
     <script>
@@ -38,7 +35,36 @@ document.addEventListener('DOMContentLoaded', loadNavbar);
             <tbody id="inventoryTableBody"></tbody>
         </table>
     </div>
-
+<!------------------------------------------------->
+<div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="historyModalLabel">Historial</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Fecha</th>
+                <th>Cantidad</th>
+                <th>Nuevo Stock</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <!-- Aquí se rellenará el historial -->
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
     <!-- Popover para editar materia prima -->
     <div class="custom-popover" id="editPopover">
         <h3>Editar Materia Prima</h3>
@@ -62,9 +88,11 @@ document.addEventListener('DOMContentLoaded', loadNavbar);
                     <option value="kilos">Kilos</option>
                     <option value="gramos">Gramos</option>
                     <option value="metros">Metros</option>
+                    <option value="centimetros">Centímetros</option>
                     <option value="unidad">Unidad</option>
                     <option value="litro">Litro</option>
                     <option value="ml">Mililitros</option>
+                    <option value="mm">Milímetros</option>
                 </select>
             </div>
             <button type="submit" class="button" style="margin:20px">Guardar Cambios</button>
@@ -84,22 +112,24 @@ document.addEventListener('DOMContentLoaded', loadNavbar);
             }
 
             rawMaterials.forEach(material => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${material.codigo}</td>
-                    <td>${material.nombre}</td>
-                    <td>${material.cantidad}</td>
-                    <td>${material.unidadMedida}</td>
-                    <td>
-                        <button class="button2" onclick="openEditPopover(this, '${material.codigo}')">Editar</button>
-                    </td>
-                `;
-                inventoryTableBody.appendChild(row);
-            });
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>${material.codigo}</td>
+        <td>${material.nombre}</td>
+        <td>${material.cantidad}</td>
+        <td>${material.unidadMedida}</td>
+        <td>
+            <button class="button2" onclick="openEditPopover(this, '${material.codigo}')">Editar</button>
+            <button class="button2" onclick="viewHistory('${material.codigo}')">Ver Historial</button>
+        </td>
+    `;
+    inventoryTableBody.appendChild(row);
+});
+
         }
 
         function openEditPopover(button, codigo) {
-            const popover = document.getElementById('editPopover');
+    const popover = document.getElementById('editPopover');
     // Ajustar tamaño del popover
     popover.style.width = '600px';
     popover.style.maxHeight = '80vh';
@@ -111,36 +141,55 @@ document.addEventListener('DOMContentLoaded', loadNavbar);
     popover.style.left = '50%';
     popover.style.transform = 'translate(-50%, -50%)';
 
-            const rawMaterials = JSON.parse(localStorage.getItem('rawMaterials')) || [];
-            const material = rawMaterials.find(mat => mat.codigo === codigo);
+    const rawMaterials = JSON.parse(localStorage.getItem('rawMaterials')) || [];
+    const material = rawMaterials.find(mat => mat.codigo === codigo);
 
-            if (material) {
-                document.getElementById('materialCode').value = material.codigo;
-                document.getElementById('materialName').value = material.nombre;
-                document.getElementById('materialCantidad').value = material.cantidad;
-                document.getElementById('unitSelect').value = material.unidadMedida;
-            }
-        }
+    if (material) {
+        document.getElementById('materialCode').value = material.codigo;
+        document.getElementById('materialName').value = material.nombre;
+        document.getElementById('materialCantidad').value = ''; // Campo vacío para ingresar la cantidad a sumar
+        document.getElementById('unitSelect').value = material.unidadMedida;
+    }
+}
 
-        document.getElementById('editMaterialForm').addEventListener('submit', (event) => {
-            event.preventDefault();
-            const codigo = document.getElementById('materialCode').value;
-            const nombre = document.getElementById('materialName').value;
-            const cantidad = document.getElementById('materialCantidad').value;
-            const unidadMedida = document.getElementById('unitSelect').value;
+document.getElementById('editMaterialForm').addEventListener('submit', (event) => {
+    event.preventDefault();
 
-            const rawMaterials = JSON.parse(localStorage.getItem('rawMaterials')) || [];
-            const materialIndex = rawMaterials.findIndex(mat => mat.codigo === codigo);
+    const codigo = document.getElementById('materialCode').value;
+    const nombre = document.getElementById('materialName').value;
+    const cantidadAgregar = parseFloat(document.getElementById('materialCantidad').value); // Cantidad ingresada
+    const unidadMedida = document.getElementById('unitSelect').value;
 
-            if (materialIndex !== -1) {
-                rawMaterials[materialIndex] = { codigo, nombre, cantidad, unidadMedida };
-                localStorage.setItem('rawMaterials', JSON.stringify(rawMaterials));
-                alert("Materia prima actualizada exitosamente.");
-                loadRawMaterials();
-                closePopover();
-            }
-        });
+    if (isNaN(cantidadAgregar) || cantidadAgregar <= 0) {
+        alert("Por favor, ingresa una cantidad válida.");
+        return;
+    }
 
+    const rawMaterials = JSON.parse(localStorage.getItem('rawMaterials')) || [];
+    const materialIndex = rawMaterials.findIndex(mat => mat.codigo === codigo);
+
+    if (materialIndex !== -1) {
+    const material = rawMaterials[materialIndex];
+    const nuevaCantidad = parseFloat(material.cantidad) + cantidadAgregar;
+
+    rawMaterials[materialIndex] = {
+        codigo,
+        nombre,
+        cantidad: nuevaCantidad,
+        unidadMedida,
+    };
+
+    // Guardar el cambio en el historial
+    saveStockChange(codigo, cantidadAgregar, nuevaCantidad);
+
+    localStorage.setItem('rawMaterials', JSON.stringify(rawMaterials));
+    alert("Stock actualizado exitosamente.");
+    loadRawMaterials();
+    closePopover();
+}
+
+});
+     
         document.getElementById('closePopover').addEventListener('click', closePopover);
 
         function closePopover() {
@@ -149,6 +198,67 @@ document.addEventListener('DOMContentLoaded', loadNavbar);
         }
 
         window.addEventListener('load', loadRawMaterials);
+
+
+
+// historial
+function saveStockChange(codigo, cantidadAgregar, nuevaCantidad) {
+    const rawMaterialsHistory = JSON.parse(localStorage.getItem('rawMaterialsHistory')) || {};
+    if (!rawMaterialsHistory[codigo]) {
+        rawMaterialsHistory[codigo] = []; // Inicializar historial si no existe
+    }
+
+    // Crear el registro del cambio
+    const cambio = {
+        fecha: new Date().toLocaleString(),
+        cantidadAgregada: cantidadAgregar,
+        nuevoStock: nuevaCantidad,
+    };
+
+    // Guardar el cambio en el historial
+    rawMaterialsHistory[codigo].push(cambio);
+    localStorage.setItem('rawMaterialsHistory', JSON.stringify(rawMaterialsHistory));
+}
+
+
+function viewHistory(codigo) {
+    const rawMaterialsHistory = JSON.parse(localStorage.getItem('rawMaterialsHistory')) || {};
+    const history = rawMaterialsHistory[codigo] || [];
+
+    const historyTableBody = document.getElementById('historyTableBody');
+    historyTableBody.innerHTML = '';
+
+    if (history.length === 0) {
+        historyTableBody.innerHTML = '<tr><td colspan="4" class="text-center">No hay historial para este material.</td></tr>';
+    } else {
+        history.forEach((entry, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${entry.fecha}</td>
+                <td>${entry.cantidadAgregada}</td>
+                <td>${entry.nuevoStock}</td>
+            `;
+            historyTableBody.appendChild(row);
+        });
+    }
+
+    // Asegúrate de que el modal está cargado y visible
+    const historyModalElement = document.getElementById('historyModal');
+    if (!historyModalElement) {
+        console.error('No se encontró el modal de historial');
+        return;
+    }
+
+    const historyModal = new bootstrap.Modal(historyModalElement, {
+        backdrop: 'static', // Bloquear clics fuera
+        keyboard: false     // Bloquear cierre con teclado
+    });
+    historyModal.show(); // Mostrar modal
+}
+
+
+
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
