@@ -17,7 +17,6 @@
 <body>
     <!------BARRA MENU----------->
     <div id="navbar"></div>
-
     <!----------------->
 
     <div class="container mt-5">
@@ -39,8 +38,8 @@
                         <ul>
                             ${product.ingredients.map(ingredient => `<li>${ingredient.name} - Cantidad: ${ingredient.quantity}</li>`).join('')}
                         </ul>
-                        <button class="btn btn-danger btn-sm" onclick="deleteSelectedProduct(${index})">Eliminar</button>
-                        <button class="btn btn-success btn-sm" onclick="markAsCreated(${index})">Creado</button>
+                        <button class="button" onclick="markAsCreated(${index})">Creado</button>
+                        <button class="button2" onclick="deleteSelectedProduct(${index})">Eliminar</button>
                     </div>
                 </div>
             `;
@@ -53,6 +52,7 @@
             localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts)); // Actualizar localStorage
             location.reload(); // Recargar la página para reflejar los cambios
         }
+
         // Marcar producto como creado, actualizar inventario y eliminarlo de 'selectedProducts'
         function markAsCreated(index) {
             const product = selectedProducts[index];
@@ -77,6 +77,9 @@
 
             // Actualizar el inventario en localStorage
             localStorage.setItem('inventoryProducts', JSON.stringify(inventoryProducts));
+
+            // Mostrar mensaje de éxito
+            alert("Producto creado con éxito.");
 
             // Eliminar el producto de la lista 'selectedProducts'
             deleteSelectedProduct(index);
